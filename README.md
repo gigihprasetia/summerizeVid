@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 🚀 Next.js Starter Project with FFmpeg Setup
 
-First, run the development server:
+This is a minimal **Next.js** starter project with guidance to install **FFmpeg**, required for processing media (audio/video) files.
+
+---
+
+## 📦 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/nextjs-ffmpeg-starter.git
+cd nextjs-ffmpeg-starter
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+---
+
+## ▶️ Running the Development Server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎬 FFmpeg Installation Guide
 
-## Learn More
+FFmpeg is required if your app involves media processing. Install it based on your OS:
 
-To learn more about Next.js, take a look at the following resources:
+### 🔵 Windows
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Go to [https://www.gyan.dev/ffmpeg/builds/](https://www.gyan.dev/ffmpeg/builds/)
+2. Download the latest **Release full build (zip)**
+3. Extract the zip (e.g., to `C:\ffmpeg`)
+4. Add `C:\ffmpeg\bin` to your **System Environment Variables**:
+   - Open *System Properties* > *Environment Variables*
+   - Under "System Variables", find and edit `Path`
+   - Add: `C:\ffmpeg\bin`
+5. Open `cmd` and test:
+   ```bash
+   ffmpeg -version
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🍎 macOS
 
-## Deploy on Vercel
+#### Option 1: Homebrew (recommended)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+brew install ffmpeg
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### Option 2: Download Binary
+
+1. Go to [https://evermeet.cx/ffmpeg/](https://evermeet.cx/ffmpeg/)
+2. Download the latest `.zip`
+3. Move the `ffmpeg` binary to `/usr/local/bin`:
+   ```bash
+   sudo mv ~/Downloads/ffmpeg /usr/local/bin/
+   sudo chmod +x /usr/local/bin/ffmpeg
+   ```
+
+4. Test with:
+   ```bash
+   ffmpeg -version
+   ```
+
+---
+
+
+
+## 📜 License
+
+This project is open source and available under the [MIT License](LICENSE).
