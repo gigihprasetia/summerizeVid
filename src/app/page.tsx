@@ -8,6 +8,7 @@ import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { HiBell } from "react-icons/hi";
 import { IoIosEye, IoIosVideocam } from "react-icons/io";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -56,6 +57,7 @@ const Home = () => {
       setDataChannel({ ...res, summary });
     } catch (err) {
       console.log(err);
+      toast.error("Something Wrong");
     } finally {
       setloading(false);
     }
@@ -74,6 +76,7 @@ const Home = () => {
       })
       .catch((err) => {
         console.log(err);
+        toast.error("Something Wrong");
       })
       .finally(() => {
         setloadingMore(false);
@@ -100,6 +103,7 @@ const Home = () => {
       })
       .catch((err) => {
         console.log(err);
+        toast.error("Something Wrong Load More The Videos");
       })
       .finally(() => {
         setloadingMore(false);
@@ -117,13 +121,17 @@ const Home = () => {
           return { ...prev, res };
         });
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        toast.error("Something Wrong Summerize");
+      })
       .finally(() => {
         setLinkVid((prev) => {
           return { ...prev, loading: false };
         });
       });
   };
+
+  console.log(dataChannel, "test");
 
   return (
     <div id="scrollArea" className="h-screen overflow-auto">
@@ -156,7 +164,11 @@ const Home = () => {
                   <p className="text-2xl font-bold mb-5">Information</p>
                   <div className="flex items-center gap-6 ">
                     <img
-                      src={dataChannel?.info?.thumbnails?.high?.url}
+                      src={
+                        dataChannel?.info?.thumbnails?.high?.url ||
+                        dataChannel?.info?.thumbnails?.default?.url ||
+                        dataChannel?.info?.thumbnails?.medium?.url
+                      }
                       alt="Profile"
                       className="rounded-full w-32 h-32 object-cover"
                     />
@@ -250,13 +262,17 @@ const Home = () => {
                     );
                   })}
 
-                  {!loadingMore && dataChannel?.videos?.items?.length <= 10 && (
-                    <div
+                  {dataChannel?.videos?.nextPageToken && (
+                    <Button
+                      disabled={loadingMore}
                       onClick={loadMore}
-                      className="h-10 bg-gray-200 text-center p-2 cursor-pointer hover:bg-black hover:text-white duration-200 rounded-xl"
+                      // className="h-10 bg-gray-200 text-center p-2 cursor-pointer hover:bg-black hover:text-white duration-200 rounded-xl"
                     >
-                      ⬇️ load more...
-                    </div>
+                      ⬇️ load more...{" "}
+                      <FaSpinner
+                        className={`${loadingMore ? "animate-spin" : "hidden"}`}
+                      />
+                    </Button>
                   )}
                 </div>
               </div>
@@ -264,7 +280,6 @@ const Home = () => {
           )
         )}
       </div>
-
       <Dialog
         open={linkVid.link != null}
         onOpenChange={(open) => {

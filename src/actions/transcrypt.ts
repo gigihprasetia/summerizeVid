@@ -1,109 +1,3 @@
-// "use server";
-// import ytdl from "@distube/ytdl-core";
-// import fs from "fs-extra";
-// import Ffmpeg from "fluent-ffmpeg";
-// import Stream from "stream";
-// import path from "path";
-// import { fileURLToPath } from "url";
-// import { AI_AGENT } from "@/lib/utils";
-// import { askToChatGPT } from "./openai";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
-// const formattedMp3 = async (
-//   audioStream: Stream.Readable,
-//   path: string
-// ): Promise<void> => {
-//   return new Promise((res, rej) => {
-//     console.log("Start To formatted Mp3");
-//     Ffmpeg(audioStream)
-//       .audioBitrate(128)
-//       .format("mp3")
-//       .save(path)
-//       .on("end", () => {
-//         console.log("✅ Download dan konversi selesai:", path);
-//         res();
-//       })
-//       .on("error", (err) => {
-//         console.error("❌ Error saat konversi:", err.message);
-//         rej();
-//       });
-//   });
-// };
-
-// const getAudioStream = async (
-//   urlYtb: string
-// ): Promise<{ audioStream: Stream.Readable; outputPath: string }> => {
-//   console.log("Start To Get Audio Stream");
-//   try {
-//     const audioStream = ytdl(urlYtb, {
-//       quality: "highest",
-//       filter: "audioonly",
-//       requestOptions: {
-//         headers: {
-//           "User-Agent":
-//             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-//             "AppleWebKit/537.36 (KHTML, like Gecko) " +
-//             "Chrome/115.0.0.0 Safari/537.36",
-//           Accept: "*/*",
-//           Referer: "https://www.youtube.com/",
-//         },
-//       },
-//     });
-//     const basicInfo = await ytdl.getBasicInfo(urlYtb);
-//     const titleVideo = basicInfo.videoDetails.title.replace(
-//       /[^a-zA-Z0-9]/g,
-//       ""
-//     );
-
-//     const outputPath = path.join(__dirname, "../assets", `${titleVideo}.mp3`);
-
-//     console.log("Get Audio Stream Complete");
-//     return { audioStream, outputPath };
-//   } catch (err) {
-//     if (err instanceof Error) throw new Error(err.message);
-
-//     throw new Error("terjadi kesalahan get audio stream");
-//   }
-// };
-
-// export const linkToText = async ({
-//   urlYtb,
-//   language,
-// }: {
-//   urlYtb: string;
-//   language: string;
-// }) => {
-//   try {
-//     const { audioStream, outputPath } = await getAudioStream(urlYtb);
-
-//     await formattedMp3(audioStream, outputPath);
-
-//     // OPENAI
-
-//     console.log('memulai transcrypt')
-
-//     const transcription = await AI_AGENT.audio.transcriptions.create({
-//       file: fs.createReadStream(outputPath),
-//       model: "gpt-4o-transcribe",
-//       response_format: "text",
-//     });
-
-//     const summarize = await askToChatGPT(
-//       `summerize this text: ${transcription}`
-//     );
-
-//     return {
-//       raw: transcription,
-//       summary: summarize,
-//     };
-//   } catch (err) {
-//     if (err instanceof Error) throw new Error(err.message);
-
-//     throw new Error("terjadi kesalahan link to text");
-//   }
-// };
-
 "use server";
 import ytdl from "@distube/ytdl-core";
 import fs from "fs-extra";
@@ -113,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { AI_AGENT } from "@/lib/utils";
 import { askToChatGPT } from "./openai";
+import { franc, francAll } from "franc";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -150,7 +45,7 @@ const formattedMp3Split = async (
       })
       .on("error", (err) => {
         console.error("❌ Error saat split/konversi:", err.message);
-        reject(err);
+        throw new Error("Error saat split/konversi");
       })
       .save(outputPattern);
   });
@@ -211,8 +106,24 @@ export const linkToText = async ({
       allText += result + "\n\n";
     }
 
-    console.log("memulai summarize");
-    const summary = await askToChatGPT(`${allText}`);
+    // console.log("memulai summarize");
+
+    const detectLanguage = francAll(allText, { only: ["ind", "eng"] })[0][0];
+
+    const langNameMap: Record<string, string> = {
+      ind: "Indonesian",
+      eng: "English",
+    };
+
+    const langName = langNameMap[detectLanguage] ?? "original language";
+
+    const prompt = `
+Please summarize the following text in ${langName}.
+Text:
+${allText}
+`;
+
+    const summary = await askToChatGPT(prompt);
 
     return {
       raw: allText,

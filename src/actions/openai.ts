@@ -18,7 +18,7 @@ export const askToChatGPT = async (userPrompt: string) => {
       input: [
         {
           role: "system",
-          content: `give the formatting text \n to prettier and summerize the response and answer base on language`,
+          content: `give the formatting text \n to prettier`,
         },
         {
           role: "user",
